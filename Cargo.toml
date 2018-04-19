@@ -1,0 +1,6 @@
+[package]
+name = "iobuffer"
+version = "0.1.0"
+authors = ["Metaswitch Networks Ltd"]
+
+[dependencies]
