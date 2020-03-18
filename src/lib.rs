@@ -73,11 +73,12 @@ impl io::Read for IoBuffer {
 }
 
 impl IoBuffer {
-    /// Read a full line (terminated by `\n`), if any.  Any partial line is
-    /// left unread. The terminator is not included in the result.
-    pub fn read_full_line(&mut self) -> Option<Vec<u8>> {
+    /// Read a full line (terminated by the indicated byte), if any.
+    /// Any partial line is left unread. The terminator is not included
+    /// in the result.
+    pub fn read_full_line(&mut self, terminator: u8) -> Option<Vec<u8>> {
         let mut lock = self.inner.lock().expect("lock poisoned");
-        let mut p = lock.buf[lock.pos..].split(|c| *c == b'\n');
+        let mut p = lock.buf[lock.pos..].split(|c| *c == terminator);
         match p.next() {
             Some(line) => {
                 match p.next() {
@@ -94,9 +95,9 @@ impl IoBuffer {
     }
 
     /// Iterator of full lines (as returned by `read_full_line`).
-    pub fn lines(&mut self) -> Box<dyn Iterator<Item = Vec<u8>>> {
+    pub fn lines(&mut self) -> impl Iterator<Item = Vec<u8>> {
         let mut buf = self.clone();
-        Box::new(std::iter::from_fn(move || buf.read_full_line()))
+        std::iter::from_fn(move || buf.read_full_line(b'\n'))
     }
 }
 
@@ -133,7 +134,8 @@ mod tests {
     }
 
     fn next_full_line(buf: &mut IoBuffer) -> Option<String> {
-        buf.read_full_line().map(|x| String::from_utf8(x).unwrap())
+        buf.read_full_line(b'\n')
+            .map(|x| String::from_utf8(x).unwrap())
     }
 
     #[test]
