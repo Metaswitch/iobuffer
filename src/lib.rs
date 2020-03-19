@@ -1,6 +1,6 @@
 //! IoBuffer library
 //!
-//! Copyright 2017 Metaswitch Networks
+//! Copyright 2020 Metaswitch Networks
 //!
 //! Memory-based buffer which implements Write and Read traits.
 
